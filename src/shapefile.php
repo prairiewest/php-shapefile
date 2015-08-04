@@ -141,7 +141,7 @@ class ShapeFile {
 	/*
 	 * Gets the next record from the shapefile when in read mode
 	 * This function can be called repeatedly, it will continue
-	 * until it rounds out of records
+	 * until it runs out of records
 	 */
 	public function getRecord($geometry_format = self::GEOMETRY_ARRAY)
 	{
@@ -237,22 +237,22 @@ class ShapeFile {
 	/*
 	 * Format of input to addPolyline:
 	 *     Array (
-	 *         Array (                  // Part 1
-	 *            Array (                 // Part 1 point 1
+	 *         Array (                  // Line 1
+	 *            Array (                 // Line 1 point 1
 	 *                [x] => float
 	 *                [y] => float
 	 *            ),
-	 *            Array (                 // Part 1 point 2
+	 *            Array (                 // Line 1 point 2
 	 *                [x] => float
 	 *                [y] => float
 	 *            )
 	 *         ),
-	 *         Array (                  // Part 2
-	 *            Array (                 // Part 2 point 1
+	 *         Array (                  // Line 2
+	 *            Array (                 // Line 2 point 1
 	 *                [x] => float
 	 *                [y] => float
 	 *            ),
-	 *            Array (                 // Part 2 point 2
+	 *            Array (                 // Line 2 point 2
 	 *                [x] => float
 	 *                [y] => float
 	 *            )
@@ -293,9 +293,12 @@ class ShapeFile {
 	}
 
 	/*
+	 * All Polygon arrays must have length of 4 or greater, and the last point
+	 * must be exactly the same as the first point to close the polygon
+	 *
 	 * Format of input to addPolygon:
 	 *     Array (
-	 *         Array (                  // Polygon 1 (must be clockwise, 4 or more points [closed] )
+	 *         Array (                  // Polygon 1 (must be clockwise)
 	 *            Array (                 // Ring 1 point 1
 	 *                [x] => float
 	 *                [y] => float
