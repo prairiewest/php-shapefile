@@ -289,7 +289,7 @@ class ShapeFile {
 			'parts' => $parts
 			)
 		);
-		$this->file_size = $this->file_size + 52 + $numparts * 4 + $totalpoints * 16;
+		$this->file_size = $this->file_size + 44 + $numparts * 4 + $totalpoints * 16;
 	}
 
 	/*
@@ -363,7 +363,7 @@ class ShapeFile {
 			'parts' => $parts
 			)
 		);
-		$this->file_size = $this->file_size + 52 + $numparts * 4 + $totalpoints * 16;
+		$this->file_size = $this->file_size + 44 + $numparts * 4 + $totalpoints * 16;
 	}
 
 	/*
@@ -539,7 +539,7 @@ class ShapeFile {
 			$this->WriteHeader($this->shp, ($this->file_size + 100)/2 );
 			// .shx size: num records * 8 + header length, convert bytes to 16 bit words
 			$this->WriteHeader($this->shx, (count($this->records)*8 + 100)/2 );
-			$this->current_offset = 50;
+			$this->current_offset = 50; // Words
 		}
 		if ($this->mode != "w") $this->Error('FILE_WRITE_CONFLICT');
 		$record_length = 0;
@@ -565,7 +565,7 @@ class ShapeFile {
 		// Update the .shx file
 		$this->WriteData('N',$this->current_offset,$this->shx);
 		$this->WriteData('N',$record_length,$this->shx);
-		$this->current_offset = $this->current_offset + $record_length;
+		$this->current_offset = $this->current_offset + $record_length + 4; // Account for next record header
 		// Get ready for next record
 		$this->record_number++;
 	}
@@ -674,7 +674,7 @@ class ShapeFile {
 
 	private function WritePolyLine($polyline)
 	{
-		$length = 26 + $polyline['numparts'] * 2 + $polyline['numpoints'] * 8;
+		$length = 22 + $polyline['numparts'] * 2 + $polyline['numpoints'] * 8;
 		// Header
 		$this->WriteData('N',$this->record_number,$this->shp);
 		// Storage: 
@@ -734,7 +734,7 @@ class ShapeFile {
 
 	private function WritePolygon($polygon)
 	{
-		$length = 26 + $polygon['numparts'] * 2 + $polygon['numpoints'] * 8;
+		$length = 22 + $polygon['numparts'] * 2 + $polygon['numpoints'] * 8;
 		// Header
 		$this->WriteData('N',$this->record_number,$this->shp);
 		// Storage: 
