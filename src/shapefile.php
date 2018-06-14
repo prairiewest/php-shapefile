@@ -35,10 +35,7 @@ class ShapeFile
     const SHAPE_POLYGON = 5;
     const SHAPE_MULTIPOINT = 8;
 
-    private static $dbf_schema = [
-        ["id", "N", 4, 0],
-        ["deleted", "N", 4, 0],
-    ];
+
 
     private static $error_messages = [
         'FILE_SHP' => [11, "Impossible to open SHP file: check if the file exists and is readable"],
@@ -456,7 +453,7 @@ class ShapeFile
             unlink($this->dbf_file);
         }
 
-        $this->dbf = dbase_create($this->dbf_file, self::$dbf_schema);
+        $this->dbf = dbase_create($this->dbf_file, $scheme);
         if ($this->dbf === false) {
             $this->Error('FILE_DBF_WRITE');
         }
