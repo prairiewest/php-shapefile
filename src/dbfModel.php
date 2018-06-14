@@ -7,7 +7,10 @@ class DbfModel
 
     public function __construct()
     {
-        $dbf_schema = [["id","N",4,0]];
+        $dbf_schema = [
+            ["id", "N", 4, 0],
+            ["deleted", "N", 4, 0]
+        ];
 
         if(empty($this->schema)){
             $this->schema = $dbf_schema;
