@@ -36,7 +36,6 @@ class ShapeFile
     const SHAPE_MULTIPOINT = 8;
 
 
-
     private static $error_messages = [
         'FILE_SHP' => [11, "Impossible to open SHP file: check if the file exists and is readable"],
         'FILE_DBF' => [12, "Impossible to open DBF file: check if the file exists and is readable"],
@@ -76,6 +75,10 @@ class ShapeFile
     private $mode;        // "r" when reading a shapefile, "w" when writing, empty when not set
     private $record_number;
     private $records;    // Array of <shape_type> records
+    /**
+     * @var DbfModel
+     */
+    private $dbfModel;
 
     public function __construct($shp_file, $dbf_file = '', $shx_file = '')
     {
@@ -94,6 +97,10 @@ class ShapeFile
         $this->bounding_box = [];
         $this->records = [];
         $this->file_size = 0;
+
+        if(!$this->dbfModel){
+            $this->dbfModel = new DbfModel();
+        }
     }
 
     public function __destruct()
@@ -438,8 +445,6 @@ class ShapeFile
 
     private function open_write()
     {
-        $dbfModel = new DbfModel();
-        $scheme = $dbfModel->getSchema();
         $this->mode = "w";
         $this->shp = fopen($this->shp_file, 'wb');
         if (!$this->shp) {
@@ -452,7 +457,7 @@ class ShapeFile
         if (file_exists($this->dbf_file)) {
             unlink($this->dbf_file);
         }
-
+        $scheme = $this->dbfModel->getSchema();
         $this->dbf = dbase_create($this->dbf_file, $scheme);
         if ($this->dbf === false) {
             $this->Error('FILE_DBF_WRITE');
@@ -641,8 +646,9 @@ class ShapeFile
                 $record_length = $this->WritePolygon($record);
                 break;
         }
+        $dbfRecord = isset($record['dbfRecord']) ? $record['dbfRecord'] : null;
         // Update the .dbf file
-        dbase_add_record($this->dbf, ["id" => $this->record_number, "deleted" => 0]);
+        $this->updateDbfFile($dbfRecord);
         // Update the .shx file
         $this->WriteData('N', $this->current_offset, $this->shx);
         $this->WriteData('N', $record_length, $this->shx);
@@ -932,6 +938,33 @@ class ShapeFile
             $message .= ': "' . $details . '"';
         }
         throw new ShapeFileException($message, $code);
+    }
+
+    public function addDbRecord($array)
+    {
+        $lastRecord = null;
+        if (!empty($this->records)) {
+            $this->records[key($this->records)]['dbfRecord'] = $array;
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param null $dbfData
+     * @throws ErrorException
+     */
+    private function updateDbfFile($dbfData = null)
+    {
+        if($this->dbfModel->checkDataWithSchema($dbfData)){
+            if ($dbfData) {
+                dbase_add_record($this->dbf, $dbfData);
+            } else {
+                dbase_add_record($this->dbf, ["id" => $this->record_number]);
+            }
+        }
+
     }
 
 }
