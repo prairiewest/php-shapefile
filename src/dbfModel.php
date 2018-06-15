@@ -10,25 +10,30 @@ class DbfModel
     const FLOAT_TYPE = 'F'; // float
     const STRING_TYPE = 'C'; //  string
     const BOOLEAN_TYPE = 'L'; // T or Y for true, F or N fpr false, ? - for null
-    // memory address
+    // memory address. Field data address (address is set in memory; not useful on disk).
     const MEMORY_ADDRESS = 4;
     // length in binary
     const FIELD_LENGTH = 0;
 
     /**
-     * @var array schema fot dbf
+     * @var array schema for dbf
      */
     public $schema = [];
+
+    /**
+     * @var array of errors from dbf
+     */
+    private $errors = [];
 
 
     public function __construct()
     {
-        $dbf_schema = [
-            ["id", self::NUMBER_TYPE, self::MEMORY_ADDRESS, self::FIELD_LENGTH]
+        $dbf_default_schema = [
+            ["id", self::NUMBER_TYPE, self::MEMORY_ADDRESS, self::FIELD_LENGTH],
         ];
 
-        if(empty($this->schema)){
-            $this->schema = $dbf_schema;
+        if (empty($this->schema)) {
+            $this->schema = $dbf_default_schema;
         }
     }
 
@@ -38,14 +43,29 @@ class DbfModel
     }
 
     /**
+     * @param $schema
+     * @return $this
+     * @throws ErrorException
+     */
+    public function setSchema($schema)
+    {
+        if($this->checkSchema($schema)){
+            $this->schema = $schema;
+        }
+
+        return $this;
+    }
+
+    /**
      * @param $bdfData
      * @return bool
      * @throws ErrorException
      */
     public function checkDataWithSchema($bdfData)
     {
-        if(!is_array($bdfData)){
-            throw new ErrorException('dbf data in wrong format.');
+        if (!is_array($bdfData) || empty($bdfData)) {
+            $this->addError('dbf data in wrong format.');
+            return false;
         }
         $isFieldNameExist = false;
 
@@ -54,21 +74,25 @@ class DbfModel
                 $fieldNameFromSchema = $fieldFromSchema[0];
                 $fieldTypeFromSchema = $this->getTypeByDbfType($fieldFromSchema[1]);
 
-                if($fieldName === $fieldNameFromSchema){
+                if ($fieldName === $fieldNameFromSchema) {
                     $isFieldNameExist = true;
                     $fieldType = gettype($fieldDatum);
-                    if($fieldTypeFromSchema !== $fieldType){
-                        throw new ErrorException('Wrong type for dbf record');
+                    if ($fieldTypeFromSchema !== $fieldType) {
+                        $this->addError('Wrong type for dbf record');
                     }
                 }
             }
-            if($isFieldNameExist === false){
-                throw new ErrorException('Not found field name "'. $fieldName . '" for dbf record');
+            if ($isFieldNameExist === false) {
+                $this->addError('Not found field name "' . $fieldName . '" for dbf record');
             }
             $isFieldNameExist = false;
         }
 
-        return true;
+        if (empty($this->getErrors())) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -93,5 +117,45 @@ class DbfModel
                 return 'boolean';
         }
         throw new ErrorException('This type not supported by php');
+    }
+
+    private function addError($message)
+    {
+        return $this->errors[] = [
+            'message' => $message,
+        ];
+    }
+
+    public function getErrors()
+    {
+        return $this->errors;
+    }
+
+    /**
+     * @param $schema
+     * @throws ErrorException
+     */
+    private function checkSchema($schema)
+    {
+        $isCurrentFieldName = false;
+        $isCurrentFieldType = false;
+        $isCurrentMemoryAddress = false;
+        $isCurrentFieldLength = false;
+
+        if (is_array($schema) && !empty($schema)) {
+            foreach ($schema as $item) {
+                $isCurrentFieldName = gettype($item[0]) === 'string';
+                $isCurrentFieldType = $this->getTypeByDbfType($item[1]);
+                $isCurrentMemoryAddress = is_int($item[2]);
+                $isCurrentFieldLength = is_int($item[3]);
+            }
+        }
+
+        $isHasErrors = !$isCurrentFieldName || !$isCurrentFieldType || !$isCurrentMemoryAddress || !$isCurrentFieldLength;
+        if($isHasErrors){
+            throw new ErrorException('Wrong schema format');
+        }
+
+        return true;
     }
 }

@@ -404,18 +404,29 @@ class ShapeFile
                 'parts' => $parts,
             ]
         );
+
         $this->file_size = $this->file_size + 44 + $numparts * 4 + $totalpoints * 16;
     }
 
     /*
      * After adding all the feature records, call this method
      */
+    /**
+     * @return array|bool
+     * @throws ErrorException
+     * @throws ShapeFileException
+     */
     public function write()
     {
+        if(!$this->checkDbfData()){
+            return false;
+        }
         foreach ($this->records as $record) {
             $this->WriteRecord($record);
         }
         $this->close();
+
+        return true;
     }
 
     /******************** PRIVATE ********************/
@@ -615,6 +626,11 @@ class ShapeFile
         fseek($this->shp, 100, SEEK_SET);
     }
 
+    /**
+     * @param $record
+     * @throws ErrorException
+     * @throws ShapeFileException
+     */
     private function WriteRecord($record)
     {
         if ($this->mode == "") {
@@ -942,12 +958,12 @@ class ShapeFile
 
     public function addDbRecord($array)
     {
-        $lastRecord = null;
         if (!empty($this->records)) {
+            end($this->records);
             $this->records[key($this->records)]['dbfRecord'] = $array;
+            reset($this->records);
             return true;
         }
-
         return false;
     }
 
@@ -957,16 +973,53 @@ class ShapeFile
      */
     private function updateDbfFile($dbfData = null)
     {
-        if($this->dbfModel->checkDataWithSchema($dbfData)){
+        $this->dbfModel->checkDataWithSchema($dbfData);
+        $errors = $this->dbfModel->getErrors();
+        if(empty($errors)){
             if ($dbfData) {
                 dbase_add_record($this->dbf, $dbfData);
+            }
+        }
+    }
+
+    public function getErrors()
+    {
+        return $this->dbfModel->getErrors();
+    }
+
+    /**
+     * @throws ErrorException
+     */
+    private function checkDbfData()
+    {
+        foreach ($this->records as $recordId => $record) {
+            if(isset($record['dbfRecord'])){
+                $this->dbfModel->checkDataWithSchema($record['dbfRecord']);
             } else {
-                dbase_add_record($this->dbf, ["id" => $this->record_number]);
+                $this->addDbRecord($this->setDefaultDbfRecord($recordId));
+                $this->dbfModel->checkDataWithSchema($this->records[$recordId]['dbfRecord']);
             }
         }
 
+        if(empty($this->dbfModel->getErrors())){
+            return true;
+        }
+        return false;
     }
 
+    /**
+     * @param $schema
+     * @throws ErrorException
+     */
+    public function setDbfSchema($schema)
+    {
+        $this->dbfModel->setSchema($schema);
+    }
+
+    private function setDefaultDbfRecord($recordId)
+    {
+        return $this->records[$recordId]['dbfRecord'] = ["id" => $recordId];
+    }
 }
 
 class ShapeFileException extends Exception
