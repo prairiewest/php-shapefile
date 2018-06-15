@@ -418,6 +418,7 @@ class ShapeFile
      */
     public function write()
     {
+        //@todo optimize
         if(!$this->checkDbfData()){
             return false;
         }
