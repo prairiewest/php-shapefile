@@ -26,6 +26,10 @@ class DbfModel
     private $errors = [];
 
 
+    /**
+     * DbfModel constructor.
+     * Set schema by default
+     */
     public function __construct()
     {
         $dbf_default_schema = [
@@ -37,13 +41,17 @@ class DbfModel
         }
     }
 
+    /**
+     * @return array schema of dbf file
+     */
     public function getSchema()
     {
         return $this->schema;
     }
 
     /**
-     * @param $schema
+     * Set and check schema of dbf file
+     * @param array $schema
      * @return $this
      * @throws ErrorException
      */
@@ -57,7 +65,8 @@ class DbfModel
     }
 
     /**
-     * @param $bdfData
+     * Check and compare dbf data with dbf schema
+     * @param array $bdfData
      * @return bool
      * @throws ErrorException
      */
@@ -96,8 +105,8 @@ class DbfModel
     }
 
     /**
-     * @param $dbfType
-     * @return string
+     * @param mixed $dbfType
+     * @return string name of type
      * @throws ErrorException
      */
     private function getTypeByDbfType($dbfType)
@@ -119,6 +128,10 @@ class DbfModel
         throw new ErrorException('This type not supported by php');
     }
 
+    /**
+     * @param string $message
+     * @return array of dbf errors
+     */
     private function addError($message)
     {
         return $this->errors[] = [
@@ -126,13 +139,18 @@ class DbfModel
         ];
     }
 
+    /**
+     * @return array of dbf errors
+     */
     public function getErrors()
     {
         return $this->errors;
     }
 
     /**
-     * @param $schema
+     * Check on valid schema
+     * @param array $schema
+     * @return bool
      * @throws ErrorException
      */
     private function checkSchema($schema)
