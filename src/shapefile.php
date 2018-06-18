@@ -955,11 +955,23 @@ class ShapeFile
         throw new ShapeFileException($message, $code);
     }
 
-    public function addDbRecord($array)
+    /**
+     * Add data for dbf
+     * Example:
+     *
+     * $ShapeFile->addDbRecord([
+     *      'id' => 2,
+     *      'value' => 'your value',
+     * ]);
+     *
+     * @param array $data for dbf for last record
+     * @return bool
+     */
+    public function addDbRecord($data)
     {
         if (!empty($this->records)) {
             end($this->records);
-            $this->records[key($this->records)]['dbfRecord'] = $array;
+            $this->records[key($this->records)]['dbfRecord'] = $data;
             reset($this->records);
             return true;
         }
@@ -1007,6 +1019,16 @@ class ShapeFile
     }
 
     /**
+     * Set schema of structure dbf.
+     *
+     * Example:
+     *  $ShapeFile = new ShapeFile('polygon.shp');
+     *  $ShapeFile->setDbfSchema([
+     *      ['id', DbfModel::NUMBER_TYPE, DbfModel::MEMORY_ADDRESS, DbfModel::FIELD_LENGTH],
+     *      ['value', DbfModel::STRING_TYPE, DbfModel::MEMORY_ADDRESS, DbfModel::FIELD_LENGTH],
+     *  ]);
+     *
+     * Types and properties you could @see DbfModel
      * @param $schema
      * @throws ErrorException
      */
