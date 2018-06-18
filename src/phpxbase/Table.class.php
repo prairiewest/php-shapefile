@@ -56,7 +56,7 @@ class XBaseTable {
     var $foxpro;
     var $deleteCount=0;
 
-    function XBaseTable($name) {
+    function __construct($name) {
         $this->name=$name;
     }
     

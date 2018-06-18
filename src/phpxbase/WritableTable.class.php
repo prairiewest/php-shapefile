@@ -42,7 +42,7 @@ class XBaseWritableTable extends XBaseTable {
 	}
 
 	/* static */
-	function create($filename,$fields) {
+	static function create($filename,$fields) {
 		if (!$fields || !is_array($fields)) trigger_error ("cannot create xbase with no fields", E_USER_ERROR);
 		$recordByteLength=1;
 		$columns=array();
@@ -127,7 +127,7 @@ class XBaseWritableTable extends XBaseTable {
 	}
 	function writeRecord() {
 		fseek($this->fp,$this->headerLength+($this->record->recordIndex*$this->recordByteLength));
-		$data =& $this->record->serializeRawData();
+		$data = $this->record->serializeRawData();
 		fwrite($this->fp,$data);
 		if ($this->record->inserted) $this->writeHeader();
 		flush();

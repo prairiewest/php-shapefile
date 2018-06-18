@@ -42,7 +42,7 @@ function xbase_close($xbase_identifier=false) { // - Close a dBase database
 	$xbase->close();
 }
 function xbase_create($filename,$fields) { // - Creates a dBase database
-	if ($xbase =& XBaseWritableTable::create($filename,$fields)) return xbase_addInstance($xbase);
+	if ($xbase = XBaseWritableTable::create($filename,$fields)) return xbase_addInstance($xbase);
 	return false;
 }
 function xbase_delete_record($xbase_identifier=false,$record) { // - Deletes a record from a dBase database
