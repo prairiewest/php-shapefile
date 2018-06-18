@@ -408,17 +408,15 @@ class ShapeFile
         $this->file_size = $this->file_size + 44 + $numparts * 4 + $totalpoints * 16;
     }
 
-    /*
-     * After adding all the feature records, call this method
-     */
     /**
-     * @return array|bool
+     * After adding all the feature records, call this method
+     * This method write data to files and after, is cleaning all properties
+     * @return array|bool array of errors or true is success
      * @throws ErrorException
      * @throws ShapeFileException
      */
     public function write()
     {
-        //@todo optimize
         if(!$this->checkDbfData()){
             return false;
         }
