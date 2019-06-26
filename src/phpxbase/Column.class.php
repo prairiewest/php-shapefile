@@ -33,7 +33,7 @@ class XBaseColumn {
     var $bytePos;
     var $colIndex;
 
-    function XBaseColumn(
+    function __construct(
         $name,
         $type,
         $memAddress,

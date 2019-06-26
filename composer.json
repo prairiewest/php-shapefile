@@ -1,0 +1,9 @@
+{
+  "name": "mepoooe/php-shapefile",
+  "description": "This is fork from prairiewest/php-shapefile. Which can record shape files with dbf data",
+  "version": "1.4",
+  "license": "MIT",
+  "autoload": {
+    "classmap": ["src/shapefile.php", "src/dbfModel.php"]
+  }
+}
