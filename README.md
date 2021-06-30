@@ -1,18 +1,7 @@
 # PHP ShapeFile
 
-PHP Class to read some types of *ESRI Shapefile* and its associated DBF into a PHP Array.  Note that the .shp file can only be read sequentially, the .shx is not used for seeking to specific records.
+#### PLEASE DO NOT USE THIS FORK - THE UPSTREAM LIBRARY CAN NOW WRITE SHAPEFILES ####
 
-This fork will also write Shapefiles (and the index and DBF).
+**This fork was originally created when Gaspare's library could not write shapefiles, however since version 3.0 it can write. You should go use that code, it is better maintained and documented.**
 
-Only the following shape types are currently supported:
-
-* Point
-* Multipoint
-* Polyline
-* Polygon
-
-Sample usage can be found in the /tests directory.
-
----
-
-Documentation and examples at [http://gasparesganga.com/labs/php-shapefile](http://gasparesganga.com/labs/php-shapefile)
+[http://gasparesganga.com/labs/php-shapefile](http://gasparesganga.com/labs/php-shapefile)
